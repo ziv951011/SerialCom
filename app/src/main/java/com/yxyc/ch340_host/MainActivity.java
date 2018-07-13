@@ -23,7 +23,7 @@ import com.yxyc.serial_library.utils.StringUtils;
 public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbPermissionListener {
 
     private boolean isFirst;//判断是否打开
-    private Button btnSend, btnFormat;
+    private Button btnSend;
     private EditText etContent;
     private static final String ACTION_USB_PERMISSION = "com.linc.USB_PERMISSION";
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnSend = findViewById(R.id.btnSend);
-        btnFormat = findViewById(R.id.btnFormat);
+
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
@@ -45,26 +45,17 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
                 sendData();
             }
         });
-        btnFormat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String format = btnFormat.getText().toString().toLowerCase();
-                if ("ascii".equals(format)) {
-                    btnFormat.setText("hex");
-                } else if ("hex".equals(format)) {
-                    btnFormat.setText("ascii");
-                }
-            }
-        });
     }
 
     private void sendData() {
         String string = etContent.getText().toString();
         if (!TextUtils.isEmpty(string)) {
-            String format = btnFormat.getText().toString().toLowerCase();
             byte[] bytes = StringUtils.hexStringToByte(string);
-            int i = CH340Util.writeData(bytes, format);
-            Toast.makeText(MainActivity.this, "数据为:" + i,Toast.LENGTH_SHORT).show();
+            int i = CH340Util.writeData(bytes);
+            if (i != -10)
+                Toast.makeText(MainActivity.this, "数据为:" + i, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(MainActivity.this, "请检查您的设备连接情况!",Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(MainActivity.this, "发送的数据不能为空！", Toast.LENGTH_SHORT).show();
         }

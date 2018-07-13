@@ -21,8 +21,13 @@ public class CH340Util {
      */
     public static int writeData(@NonNull byte[] byteArray) {
         // 将此处收到的数组转化为HexString
-        String hexString = bytesToHexString(byteArray, byteArray.length);
-        YXYCLog.i(TAG, "WriteHexString===" + hexString);
+        String string = StringUtils.bytesToHexString(byteArray);
+        YXYCLog.e("====", string);
+
+        if (CH340Driver.getDriver() == null) {
+            // 没有设备
+            return -10;
+        }
         return CH340Driver.getDriver().WriteData(byteArray, byteArray.length);
 
     }
