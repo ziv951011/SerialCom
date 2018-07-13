@@ -17,20 +17,14 @@ public class CH340Util {
      * write data in ch340.
      *
      * @param byteArray 字节数组
-     * @param format
      * @return 返回写入的结果，-1表示写入失败！
      */
-    public static int writeData(@NonNull byte[] byteArray, String format) {
+    public static int writeData(@NonNull byte[] byteArray) {
         // 将此处收到的数组转化为HexString
         String hexString = bytesToHexString(byteArray, byteArray.length);
         YXYCLog.i(TAG, "WriteHexString===" + hexString);
-        if ("ascii".equals(format)) {
-            return CH340Driver.getDriver().WriteData(byteArray, byteArray.length);
-        } else if ("hex".equals(format)) {
-            return CH340Driver.getDriver().WriteData(hexString.getBytes(), byteArray.length);
-        } else {
-            return -1;
-        }
+        return CH340Driver.getDriver().WriteData(byteArray, byteArray.length);
+
     }
 
     /**
