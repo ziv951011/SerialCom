@@ -1,21 +1,13 @@
-# USB-OTG-CH340-UART-interface
+Add it in your root build.gradle at the end of repositories:
 
-USB-OTG-CH340-UART-interface that is a library communication with USB convert uart, that module is ch340 model, it not need root of your phone.
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+Step 2. Add the dependency
 
-## License
-
-```
-   Copyright (C) [2018] [x-sir, USB-OTG-CH340-UART-interface Open Source Project]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-```
+	dependencies {
+	        implementation 'com.github.ziv951011:SerialCom:1.0'
+	}
