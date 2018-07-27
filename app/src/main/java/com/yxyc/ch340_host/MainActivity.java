@@ -33,11 +33,9 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnSend = findViewById(R.id.btnSend);
-
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
-
 
     }
 
@@ -71,27 +69,26 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
             // 初始化 ch340-library
             CH340Application.initialize(MyApplication.getContext());
         }
+
+//        IntentFilter usbFilter = new IntentFilter();
+//        usbFilter.addAction(ACTION_USB_PERMISSION);
+//        registerReceiver(mUsbReceiver, usbFilter);
     }
 
     @Override
     public void result(boolean isGranted) {
-        if (!isGranted) {
-            PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-            CH340Driver.getmUsbManager().requestPermission(CH340Driver.getmUsbDevice(), mPermissionIntent);
-        }
+//        if (!isGranted) {
+//            PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//            CH340Driver.getmUsbManager().requestPermission(CH340Driver.getmUsbDevice(), mPermissionIntent);
+//        }
+        Toast.makeText(MainActivity.this, "is:" + isGranted,Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter usbFilter = new IntentFilter();
-        usbFilter.addAction(ACTION_USB_PERMISSION);
-        registerReceiver(mUsbReceiver, usbFilter);
-    }
 
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+    private  BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Toast.makeText(MainActivity.this, action, Toast.LENGTH_SHORT).show();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 synchronized (this) {
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -111,6 +108,6 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mUsbReceiver);
+//        unregisterReceiver(mUsbReceiver);
     }
 }

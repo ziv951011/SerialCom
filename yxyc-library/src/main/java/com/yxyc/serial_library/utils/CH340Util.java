@@ -21,9 +21,7 @@ public class CH340Util {
      */
     public static int writeData(@NonNull byte[] byteArray) {
         // 将此处收到的数组转化为HexString
-        String string = StringUtils.bytesToHexString(byteArray);
-        YXYCLog.e("====", string);
-
+//        String string = StringUtils.bytesToHexString(byteArray);
         if (CH340Driver.getDriver() == null) {
             // 没有设备
             return -10;

@@ -1,5 +1,6 @@
 package com.yxyc.serial_library.runnable;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import com.yxyc.serial_library.CH340Application;
@@ -27,8 +28,13 @@ public class ReadDataRunnable implements Runnable {
     private void startReadThread() {
         while (!mStop) {
             byte[] receiveBuffer = new byte[4096];// 接收数据数组
+            if (CH340Driver.getDriver() == null) {
+                Toast.makeText(CH340Application.getContext(), "设备未连接!",Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "startReadThread: " + "设备未连接" );
+                return;
+            }
             // 读取缓存区的数据长度
-            int length = CH340Driver.getDriver().ReadData(receiveBuffer, 32);
+            int length = CH340Driver.getDriver().ReadData(receiveBuffer, 4096);
 
             switch (length) {
                 case 0: // 无数据
