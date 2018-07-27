@@ -29,7 +29,6 @@ public class ReadDataRunnable implements Runnable {
         while (!mStop) {
             byte[] receiveBuffer = new byte[4096];// 接收数据数组
             if (CH340Driver.getDriver() == null) {
-                Toast.makeText(CH340Application.getContext(), "设备未连接!",Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "startReadThread: " + "设备未连接" );
                 return;
             }
@@ -39,13 +38,11 @@ public class ReadDataRunnable implements Runnable {
             switch (length) {
                 case 0: // 无数据
                     YXYCLog.i(TAG, "No data~");
-                    Toast.makeText(CH340Application.getContext(), "没有数据", Toast.LENGTH_SHORT).show();
                     break;
                 default: // 有数据时的处理
                     // 将此处收到的数组转化为HexString
                     String hexString = CH340Util.bytesToHexString(receiveBuffer, length);
                     YXYCLog.i(TAG, "ReadHexString===" + hexString + ",length===" + length);
-                    Toast.makeText(CH340Application.getContext(), hexString + "====" + length, Toast.LENGTH_SHORT).show();
                     break;
             }
 
