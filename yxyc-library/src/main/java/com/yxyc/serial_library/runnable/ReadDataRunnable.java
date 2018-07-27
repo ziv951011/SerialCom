@@ -26,7 +26,7 @@ public class ReadDataRunnable implements Runnable {
      */
     private void startReadThread() {
         while (!mStop) {
-            byte[] receiveBuffer = new byte[32];// 接收数据数组
+            byte[] receiveBuffer = new byte[4096];// 接收数据数组
             // 读取缓存区的数据长度
             int length = CH340Driver.getDriver().ReadData(receiveBuffer, 32);
 
