@@ -1,5 +1,8 @@
 package com.yxyc.serial_library.runnable;
 
+import android.widget.Toast;
+
+import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
 import com.yxyc.serial_library.logger.YXYCLog;
 import com.yxyc.serial_library.utils.CH340Util;
@@ -30,11 +33,13 @@ public class ReadDataRunnable implements Runnable {
             switch (length) {
                 case 0: // 无数据
                     YXYCLog.i(TAG, "No data~");
+                    Toast.makeText(CH340Application.getContext(), "没有数据", Toast.LENGTH_SHORT).show();
                     break;
                 default: // 有数据时的处理
                     // 将此处收到的数组转化为HexString
                     String hexString = CH340Util.bytesToHexString(receiveBuffer, length);
                     YXYCLog.i(TAG, "ReadHexString===" + hexString + ",length===" + length);
+                    Toast.makeText(CH340Application.getContext(), hexString + "====" + length, Toast.LENGTH_SHORT).show();
                     break;
             }
 

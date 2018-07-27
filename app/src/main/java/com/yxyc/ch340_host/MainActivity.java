@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
+import com.yxyc.serial_library.runnable.ReadDataRunnable;
 import com.yxyc.serial_library.utils.CH340Util;
 import com.yxyc.serial_library.utils.StringUtils;
 
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
+
+
     }
 
     private void initListener() {
@@ -94,11 +97,11 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if (device != null) {
-                            Toast.makeText(MainActivity.this, "EXTRA_PERMISSION_GRANTED~", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "设备授权成功", Toast.LENGTH_SHORT).show();
                             CH340Driver.loadDriver(MyApplication.getContext(), CH340Driver.getmUsbManager());
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "EXTRA_PERMISSION_GRANTED null!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "设备授权失败", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
