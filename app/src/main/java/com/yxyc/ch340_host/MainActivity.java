@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,9 +20,17 @@ import android.widget.Toast;
 
 import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
+import com.yxyc.serial_library.event.MessageEvent;
 import com.yxyc.serial_library.runnable.ReadDataRunnable;
 import com.yxyc.serial_library.utils.CH340Util;
 import com.yxyc.serial_library.utils.StringUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.Arrays;
+import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbPermissionListener {
 
@@ -27,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     private Button btnSend;
     private EditText etContent;
     private static final String ACTION_USB_PERMISSION = "com.linc.USB_PERMISSION";
+    // 设置发送数据的长度 调用者自定义即可
+    private static final int LENGTH = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
-
+        EventBus.getDefault().register(this);
     }
 
     private void initListener() {
@@ -48,6 +61,26 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         });
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getEventBus(MessageEvent messageEvent) {
+        if (messageEvent.getMsg() == 0x12) {
+            byte[] bs = {(byte) 0xff, (byte) 0xfe, 0x6a, 0x38, 0x25, (byte) 0x85, 0x33, (byte) 0x8e, 0x6f, 0x55};
+            byte[] data = messageEvent.getData();
+            Arrays.sort(bs);
+            Arrays.sort(data);
+            if (Arrays.equals(bs, data)) {
+                Toast.makeText(getApplicationContext(), "yes", Toast.LENGTH_LONG).show();
+
+                // 执行自己的代码部分
+            }
+            Log.e("=====", CH340Util.toHexString(messageEvent.getData()));
+        }
+
+
+    }
+
     private void sendData() {
         String string = etContent.getText().toString();
         if (!TextUtils.isEmpty(string)) {
@@ -56,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
             if (i != -10)
                 Toast.makeText(MainActivity.this, "数据为:" + i, Toast.LENGTH_SHORT).show();
             else
-                Toast.makeText(MainActivity.this, "请检查您的设备连接情况!",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "请检查您的设备连接情况!", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(MainActivity.this, "发送的数据不能为空！", Toast.LENGTH_SHORT).show();
         }
@@ -66,26 +99,27 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         CH340Driver.setListener(this);
         if (!isFirst) {
             isFirst = true;
-            // 初始化 ch340-library
-            CH340Application.initialize(MyApplication.getContext());
+            // 假设数据长度为10
+
+            CH340Application.initialize(MyApplication.getContext(), LENGTH);
         }
 
-//        IntentFilter usbFilter = new IntentFilter();
-//        usbFilter.addAction(ACTION_USB_PERMISSION);
-//        registerReceiver(mUsbReceiver, usbFilter);
+        IntentFilter usbFilter = new IntentFilter();
+        usbFilter.addAction(ACTION_USB_PERMISSION);
+        registerReceiver(mUsbReceiver, usbFilter);
     }
 
     @Override
     public void result(boolean isGranted) {
-//        if (!isGranted) {
-//            PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-//            CH340Driver.getmUsbManager().requestPermission(CH340Driver.getmUsbDevice(), mPermissionIntent);
-//        }
-        Toast.makeText(MainActivity.this, "is:" + isGranted,Toast.LENGTH_SHORT).show();
+        if (!isGranted) {
+            PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+            CH340Driver.getmUsbManager().requestPermission(CH340Driver.getmUsbDevice(), mPermissionIntent);
+        }
+        Toast.makeText(MainActivity.this, "is:" + isGranted, Toast.LENGTH_SHORT).show();
     }
 
 
-    private  BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Toast.makeText(MainActivity.this, action, Toast.LENGTH_SHORT).show();
@@ -94,8 +128,11 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if (device != null) {
+                            /**
+                             * 设置数据
+                             */
                             Toast.makeText(MainActivity.this, "设备授权成功", Toast.LENGTH_SHORT).show();
-                            CH340Driver.loadDriver(MyApplication.getContext(), CH340Driver.getmUsbManager());
+                            CH340Driver.loadDriver(MyApplication.getContext(), CH340Driver.getmUsbManager(), LENGTH);
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "设备授权失败", Toast.LENGTH_SHORT).show();
@@ -108,6 +145,6 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        unregisterReceiver(mUsbReceiver);
+        unregisterReceiver(mUsbReceiver);
     }
 }

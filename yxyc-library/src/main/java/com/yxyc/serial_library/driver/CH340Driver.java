@@ -50,7 +50,7 @@ public class CH340Driver {
      *
      * @param context Application context.
      */
-    public static void initCH340(Context context) {
+    public static void initCH340(Context context, int length) {
         if (context == null) return;
         Context appContext = context.getApplicationContext();
         mUsbManager = (UsbManager) appContext.getSystemService(Context.USB_SERVICE);
@@ -62,7 +62,7 @@ public class CH340Driver {
                 if (device.getProductId() == 29987 && device.getVendorId() == 6790) {
                     mUsbDevice = device;
                     if (mUsbManager.hasPermission(device)) {
-                        loadDriver(appContext, mUsbManager);
+                        loadDriver(appContext, mUsbManager, length);
                     } else {
                         if (listener != null) {
                             listener.result(false);
@@ -79,21 +79,23 @@ public class CH340Driver {
      *
      * @param appContext
      * @param usbManager
+     * @param length
      */
-    public static void loadDriver(Context appContext, UsbManager usbManager) {
+    public static void loadDriver(Context appContext, UsbManager usbManager, int length) {
         driver = new CH34xUARTDriver(usbManager, appContext, ACTION_USB_PERMISSION);
         // 判断系统是否支持USB HOST
         if (!driver.UsbFeatureSupported()) {
             YXYCLog.e(TAG, "Your mobile phone does not support USB HOST, please change other phones to try again!");
         } else {
-            openCH340();
+            openCH340(length);
         }
     }
 
     /**
      * config and open ch340.
+     * @param length
      */
-    private static void openCH340() {
+    private static void openCH340(int length) {
         int ret_val = driver.ResumeUsbList();
         YXYCLog.d(TAG, ret_val + "");
         // ResumeUsbList方法用于枚举CH34X设备以及打开相关设备
@@ -109,7 +111,7 @@ public class CH340Driver {
             YXYCLog.d(TAG, ret_val + "Open device successfully!");
             if (!isOpenDeviceCH340) {
                 isOpenDeviceCH340 = true;
-                configParameters();//配置ch340的参数、需要先配置参数
+                configParameters(length);//配置ch340的参数、需要先配置参数
             }
         } else {
             YXYCLog.d(TAG, "The phone couldn't find the device！");
@@ -119,13 +121,15 @@ public class CH340Driver {
     /**
      * config ch340 parameters.
      * 配置串口波特率，函数说明可参照编程手册
+     * @param length
      */
-    private static void configParameters() {
+    private static void configParameters(int length) {
         boolean isSetConfig = driver.SetConfig(baudRate, dataBit, stopBit, parity, flowControl);
         if (isSetConfig) {
             YXYCLog.i(TAG, "Serial port Settings success~");
             if (readDataRunnable == null) {
                 readDataRunnable = new ReadDataRunnable();
+                readDataRunnable.setDataLength(length);
             }
             mThreadPool.execute(readDataRunnable);
         } else {

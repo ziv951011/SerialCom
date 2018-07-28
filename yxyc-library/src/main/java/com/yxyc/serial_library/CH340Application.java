@@ -35,16 +35,16 @@ public class CH340Application extends Application {
      *
      * @param context Application context.
      */
-    public static void initialize(Context context) {
+    public static void initialize(Context context, int length) {
         sContext = context;
-        initCH340Driver();
+        initCH340Driver(length);
     }
 
     /**
      * init init CH340 driver.
      */
-    private static void initCH340Driver() {
-        CH340Driver.initCH340(sContext);
+    private static void initCH340Driver(int length) {
+        CH340Driver.initCH340(sContext, length);
     }
 
     /**
