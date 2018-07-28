@@ -7,6 +7,7 @@ import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
 import com.yxyc.serial_library.event.MessageEvent;
 import com.yxyc.serial_library.logger.YXYCLog;
+import com.yxyc.serial_library.utils.CH340Constants;
 import com.yxyc.serial_library.utils.CH340Util;
 
 import org.greenrobot.eventbus.EventBus;
@@ -31,6 +32,12 @@ public class ReadDataRunnable implements Runnable {
      */
     private void startReadThread() {
         while (!mStop) {
+            /**
+             * 默认值为10
+             */
+            if (dataLength <= 0) {
+                dataLength = 10;
+            }
             byte[] receiveBuffer = new byte[dataLength];// 接收数据数组
             if (CH340Driver.getDriver() == null) {
                 Log.e(TAG, "startReadThread: " + "设备未连接" );
@@ -40,10 +47,10 @@ public class ReadDataRunnable implements Runnable {
             int length = CH340Driver.getDriver().ReadData(receiveBuffer, dataLength);
 
             if (length > 0) {
-                EventBus.getDefault().post(new MessageEvent(0x12, receiveBuffer));
+                EventBus.getDefault().post(new MessageEvent(CH340Constants.SUCCESS_DATA, receiveBuffer));
             } else {
                 // 无数据
-                EventBus.getDefault().post(new MessageEvent(0x11, null));
+                EventBus.getDefault().post(new MessageEvent(CH340Constants.FILD_DATA, null));
             }
 
             try {

@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
 import com.yxyc.serial_library.event.MessageEvent;
-import com.yxyc.serial_library.runnable.ReadDataRunnable;
+import com.yxyc.serial_library.utils.CH340Constants;
 import com.yxyc.serial_library.utils.CH340Util;
 import com.yxyc.serial_library.utils.StringUtils;
 
@@ -30,8 +30,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
-import java.util.Base64;
 
+
+/**
+ * 如果开发者只需要接收单片机发送的数据
+ * 长度传递0即可
+ */
 public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbPermissionListener {
 
     private boolean isFirst;//判断是否打开
@@ -65,7 +69,11 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getEventBus(MessageEvent messageEvent) {
-        if (messageEvent.getMsg() == 0x12) {
+        if (messageEvent.getMsg() == CH340Constants.SUCCESS_DATA) {
+
+            /**
+             * 校验两组数据是否相同
+             */
             byte[] bs = {(byte) 0xff, (byte) 0xfe, 0x6a, 0x38, 0x25, (byte) 0x85, 0x33, (byte) 0x8e, 0x6f, 0x55};
             byte[] data = messageEvent.getData();
             Arrays.sort(bs);
