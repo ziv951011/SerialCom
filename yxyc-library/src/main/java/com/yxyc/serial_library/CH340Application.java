@@ -28,11 +28,8 @@ public class CH340Application extends Application {
     /**
      * Construct of CommonApplication. Initialize application context.
      */
-    static {
-        EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
-    }
-    public CH340Application() {
 
+    public CH340Application() {
         sContext = this;
     }
 

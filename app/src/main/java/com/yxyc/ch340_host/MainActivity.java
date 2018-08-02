@@ -80,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
             Arrays.sort(data);
             if (Arrays.equals(bs, data)) {
                 // 执行自己的代码部分
+                Log.e("=====", CH340Util.toHexString(messageEvent.getData()));
             }
-            Log.e("=====", CH340Util.toHexString(messageEvent.getData()));
+
         }
 
 
