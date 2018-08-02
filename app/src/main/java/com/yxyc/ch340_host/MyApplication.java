@@ -3,6 +3,7 @@ package com.yxyc.ch340_host;
 import android.app.Application;
 import android.content.Context;
 
+import org.greenrobot.eventbus.EventBus;
 
 
 public class MyApplication extends Application {

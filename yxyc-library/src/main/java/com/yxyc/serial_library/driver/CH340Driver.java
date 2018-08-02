@@ -23,7 +23,6 @@ public class CH340Driver {
 
     private static final String TAG = CH340Driver.class.getSimpleName();
     private static final String ACTION_USB_PERMISSION = "com.linc.USB_PERMISSION";
-    private static final ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
     private static final byte parity = 0;
     private static final byte stopBit = 1;
     private static final byte dataBit = 8;
@@ -36,7 +35,7 @@ public class CH340Driver {
     private static UsbManager mUsbManager;
     private static IUsbPermissionListener listener;
     private static UsbDevice mUsbDevice;
-
+    private static final ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
     public static UsbDevice getmUsbDevice() {
         return mUsbDevice;
     }
@@ -93,6 +92,7 @@ public class CH340Driver {
 
     /**
      * config and open ch340.
+     *
      * @param length
      */
     private static void openCH340(int length) {
@@ -121,6 +121,7 @@ public class CH340Driver {
     /**
      * config ch340 parameters.
      * 配置串口波特率，函数说明可参照编程手册
+     *
      * @param length
      */
     private static void configParameters(int length) {
@@ -132,6 +133,7 @@ public class CH340Driver {
                 readDataRunnable.setDataLength(length);
             }
             mThreadPool.execute(readDataRunnable);
+
         } else {
             YXYCLog.e(TAG, "Serial port Settings failed！");
         }
@@ -140,7 +142,7 @@ public class CH340Driver {
     /**
      * 关闭线程池
      */
-    public static void shutdownThreadPool() {
+    public static void stopRead() {
         if (!mThreadPool.isShutdown()) {
             mThreadPool.shutdown();
         }

@@ -6,6 +6,8 @@ import android.content.Context;
 
 import com.yxyc.serial_library.driver.CH340Driver;
 
+import org.greenrobot.eventbus.EventBus;
+
 /**
  * Function:CH340Master全局初始化类
  */
@@ -26,7 +28,11 @@ public class CH340Application extends Application {
     /**
      * Construct of CommonApplication. Initialize application context.
      */
+    static {
+        EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
+    }
     public CH340Application() {
+
         sContext = this;
     }
 

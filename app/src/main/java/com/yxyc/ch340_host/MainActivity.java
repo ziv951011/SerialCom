@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.yxyc.serial_library.CH340Application;
 import com.yxyc.serial_library.driver.CH340Driver;
 import com.yxyc.serial_library.event.MessageEvent;
+import com.yxyc.serial_library.event.YxycEvent;
 import com.yxyc.serial_library.utils.CH340Constants;
 import com.yxyc.serial_library.utils.CH340Util;
 import com.yxyc.serial_library.utils.StringUtils;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
-        EventBus.getDefault().register(this);
+        YxycEvent.init().register(this);
     }
 
     private void initListener() {
@@ -66,8 +67,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN,  priority = 100)
     public void getEventBus(MessageEvent messageEvent) {
         if (messageEvent.getMsg() == CH340Constants.SUCCESS_DATA) {
 
@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
             Arrays.sort(bs);
             Arrays.sort(data);
             if (Arrays.equals(bs, data)) {
-                Toast.makeText(getApplicationContext(), "yes", Toast.LENGTH_LONG).show();
-
                 // 执行自己的代码部分
             }
             Log.e("=====", CH340Util.toHexString(messageEvent.getData()));
@@ -108,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         if (!isFirst) {
             isFirst = true;
             // 假设数据长度为10
-
             CH340Application.initialize(MyApplication.getContext(), LENGTH);
         }
 
@@ -153,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CH340Driver.stopRead();
         unregisterReceiver(mUsbReceiver);
+        YxycEvent.init().unregister(this);
     }
 }
