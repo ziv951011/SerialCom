@@ -39,12 +39,14 @@ import java.util.Arrays;
  */
 public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbPermissionListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private boolean isFirst;//判断是否打开
     private Button btnSend;
     private EditText etContent;
     private static final String ACTION_USB_PERMISSION = "com.linc.USB_PERMISSION";
     // 设置发送数据的长度 调用者自定义即可
-    private static final int LENGTH = 10;
+    private static final int LENGTH = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         etContent = findViewById(R.id.etContent);
         initData();
         initListener();
-        YxycEvent.init().register(this);
+        EventBus.getDefault().register(this);
     }
 
     private void initListener() {
@@ -67,21 +69,21 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
     }
 
 
-    @Subscribe(threadMode = ThreadMode.MAIN,  priority = 100)
+    @Subscribe(threadMode = ThreadMode.MAIN, priority = 100)
     public void getEventBus(MessageEvent messageEvent) {
         if (messageEvent.getMsg() == CH340Constants.SUCCESS_DATA) {
-
             /**
              * 校验两组数据是否相同
+             *
+             * ff fe 08 83 c6 01 00 4b
              */
-            byte[] bs = {(byte) 0xff, (byte) 0xfe, 0x6a, 0x38, 0x25, (byte) 0x85, 0x33, (byte) 0x8e, 0x6f, 0x55};
+            byte[] bs = {(byte) 0xff, (byte) 0xfa, 0x08, (byte) 0x83, (byte) 0xc6, 0x01, 0x00, 0x4b};
             byte[] data = messageEvent.getData();
-            Arrays.sort(bs);
-            Arrays.sort(data);
+
             if (Arrays.equals(bs, data)) {
-                // 执行自己的代码部分
-                Log.e("=====", CH340Util.toHexString(messageEvent.getData()));
+                Log.e(TAG, "getEventBus: " + "相同");
             }
+            Log.e(TAG, CH340Util.bytesToHexString(data, data.length));
 
         }
 
@@ -153,6 +155,6 @@ public class MainActivity extends AppCompatActivity implements CH340Driver.IUsbP
         super.onDestroy();
         CH340Driver.stopRead();
         unregisterReceiver(mUsbReceiver);
-        YxycEvent.init().unregister(this);
+        EventBus.getDefault().unregister(this);
     }
 }

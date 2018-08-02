@@ -8,6 +8,12 @@ public class MessageEvent{
     private int msg;
     private byte[] data;
 
+
+    public MessageEvent(int msg, byte[] data) {
+        this.msg = msg;
+        this.data = data;
+    }
+
     public int getMsg() {
         return msg;
     }
